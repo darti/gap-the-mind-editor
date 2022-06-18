@@ -4,5 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# you can check the latest version here: https://crates.io/crates/yew
+log = "0.4"
+ropey = "1"
+wasm-logger = "0.2"
 yew = "0.19"
+gloo = "0.7"
+
+[dependencies.web-sys]
+version = "0.3"
+features = ["Selection"]
