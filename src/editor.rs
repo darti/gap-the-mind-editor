@@ -1,4 +1,5 @@
 use log::info;
+use pulldown_cmark::{html::push_html, Options, Parser};
 use ropey::Rope;
 use web_sys::{HtmlElement, Range};
 use yew::prelude::*;
@@ -19,7 +20,7 @@ impl Component for Editor {
 
     fn create(_ctx: &yew::Context<Self>) -> Self {
         Self {
-            text: Rope::from("toto nard"),
+            text: Rope::from("# test"),
             node_ref: NodeRef::default(),
             caret: 0,
         }
@@ -53,20 +54,27 @@ impl Component for Editor {
         let win = gloo::utils::window();
         let selection = win.get_selection().unwrap().unwrap();
 
-        let elt = self
-            .node_ref
-            .cast::<HtmlElement>()
-            .unwrap()
-            .first_child()
-            .unwrap();
+        let elt = self.node_ref.cast::<HtmlElement>().unwrap();
 
-        selection.remove_all_ranges().unwrap();
-        let range = Range::new().unwrap();
+        let content = elt.first_child().unwrap();
 
-        range.set_start(&elt, self.caret).unwrap();
-        range.set_end(&elt, self.caret).unwrap();
+        // selection.remove_all_ranges().unwrap();
+        // let range = Range::new().unwrap();
 
-        selection.add_range(&range).unwrap();
+        // range.set_start(&content, self.caret).unwrap();
+        // range.set_end(&content, self.caret).unwrap();
+
+        // selection.add_range(&range).unwrap();
+
+        let mut options = Options::empty();
+        options.insert(Options::ENABLE_STRIKETHROUGH);
+        let text = self.text.to_string();
+        let parser = Parser::new_ext(&text, options);
+
+        let mut html_output = String::new();
+        push_html(&mut html_output, parser);
+
+        elt.set_inner_html(&html_output);
     }
 
     fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
@@ -77,10 +85,12 @@ impl Component for Editor {
             EditorEvent::Keypress(e)
         });
 
-        html! {
+        let div = html! {
             <div type="text" class="editor" onkeypress={key_pressed} contenteditable="true" ref={self.node_ref.clone()}>
             {&self.text}
             </div>
-        }
+        };
+
+        div
     }
 }
