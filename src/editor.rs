@@ -1,10 +1,12 @@
 use log::info;
 use ropey::Rope;
+use web_sys::{HtmlElement, Range};
 use yew::prelude::*;
 
 pub struct Editor {
     node_ref: NodeRef,
     text: Rope,
+    caret: u32,
 }
 
 pub enum EditorEvent {
@@ -19,23 +21,52 @@ impl Component for Editor {
         Self {
             text: Rope::from("toto nard"),
             node_ref: NodeRef::default(),
+            caret: 0,
         }
     }
 
-    fn update(&mut self, ctx: &yew::Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &yew::Context<Self>, msg: Self::Message) -> bool {
         match msg {
             EditorEvent::Keypress(keyboard_event) => {
-                info!("MSG: {:?}", keyboard_event);
-
                 let win = gloo::utils::window();
-                let pos = win.get_selection();
 
-                info!("POS: {:?}", pos);
+                let selection = win.get_selection().unwrap().unwrap();
 
-                self.text.insert(0, &keyboard_event.key());
+                let position = if selection.range_count() > 0 {
+                    let range = selection.get_range_at(0).unwrap();
+
+                    range.start_offset().unwrap()
+                } else {
+                    0
+                };
+
+                info!("{} at {}", keyboard_event.key(), position);
+
+                self.text.insert(position as usize, &keyboard_event.key());
+                self.caret = position + 1;
                 true
             }
         }
+    }
+
+    fn rendered(&mut self, _ctx: &Context<Self>, _first_render: bool) {
+        let win = gloo::utils::window();
+        let selection = win.get_selection().unwrap().unwrap();
+
+        let elt = self
+            .node_ref
+            .cast::<HtmlElement>()
+            .unwrap()
+            .first_child()
+            .unwrap();
+
+        selection.remove_all_ranges().unwrap();
+        let range = Range::new().unwrap();
+
+        range.set_start(&elt, self.caret).unwrap();
+        range.set_end(&elt, self.caret).unwrap();
+
+        selection.add_range(&range).unwrap();
     }
 
     fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
