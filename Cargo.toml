@@ -11,6 +11,14 @@ yew = "0.19"
 gloo = "0.7"
 pulldown-cmark = "0.9"
 
+
 [dependencies.web-sys]
 version = "0.3"
 features = ["Selection", "Range"]
+
+[dev-dependencies]
+html5ever = "0.25"
+markup5ever_rcdom = "0.1"
+lazy_static = "1.4"
+tendril = "0.4"
+regex = "1.3"
