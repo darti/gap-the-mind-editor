@@ -1,3 +1,8 @@
+body {
+    height: 100vh;
+    margin: 0;
+}
+
 .editor {
     width: 800px;
     height:  400px;
@@ -5,3 +10,4 @@
     background-color: #fff;
     overflow: auto;
 }
+
