@@ -126,6 +126,7 @@ dependencies = [
  "regex",
  "ropey",
  "tendril",
+ "wasm-bindgen",
  "wasm-logger",
  "web-sys",
  "yew",
